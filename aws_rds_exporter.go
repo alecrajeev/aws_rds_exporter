@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"math"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -33,7 +34,7 @@ var (
 
 	storage = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "", "storage"),
-		"Amount of storage for the RDS instance",
+		"Amount of storage in bytes for the RDS instance",
 		labels,
 		nil,
 	)
@@ -41,8 +42,8 @@ var (
 
 // RDSService represents a service on an RDS instance
 type DBInstance struct {
-	ID         string // Instance Identifier
-	AS         int // allocated storage
+	Identifier               string // Instance Identifier
+	AllocatedStorage         float64 // allocated storage
 }
 
 type promHTTPLogger struct {
@@ -91,10 +92,10 @@ func (e *RDSClient) GetRDSInstances() ([]*DBInstance, error) {
 
 	for _, pa := range resp.DBInstances {
 
-		var b = int(*(pa.AllocatedStorage))
+		var b = (float64(*(pa.AllocatedStorage)))*math.Pow(10,9)
 		db := &DBInstance{
-			ID: aws.StringValue(pa.DBInstanceIdentifier),
-			AS: b,
+			Identifier: aws.StringValue(pa.DBInstanceIdentifier),
+			AllocatedStorage: b,
 		}
 
 		rs = append(rs, db)
@@ -129,7 +130,7 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 
 	for _, r := range rs {
 		ch <- prometheus.MustNewConstMetric(
-			storage, prometheus.GaugeValue, float64(r.AS), e.region, r.ID,
+			storage, prometheus.GaugeValue, r.AllocatedStorage, e.region, r.Identifier,
 		)
 	}
 }
@@ -152,7 +153,7 @@ func run() int {
 	kingpin.Parse()
 	logger := promlog.New(promlogConfig)
 
-	fmt.Printf("Starting aws-rds-exporter...")
+	fmt.Printf("Starting aws_rds_exporter...")
 	fmt.Printf("\n")
 
 	RdsClient, err := NewRDSClient("us-east-1")

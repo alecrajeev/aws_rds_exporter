@@ -10,9 +10,12 @@ make
 ./aws_rds_exporter --aws.region=eu-west-1
 ```
 
-## Exposed metrics
-The `aws_rds_exporter` exports various RDS Metrics
+## Exported Metrics
 
+| Metric                              | Meaning                                                                                              | Labels                                        |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| rds_storage                           | Amount of storage in bytes for the RDS instance     
+| region, instance |
 
 ## Docker
 You can deploy this exporter using the [alecrajeev/aws_rds_exporter](https://hub.docker.com/r/alecrajeev/aws_rds_exporter/) Docker Image.

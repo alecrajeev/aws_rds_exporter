@@ -38,12 +38,20 @@ var (
 		labels,
 		nil,
 	)
+
+	iops = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "", "iops"),
+		"Amount of IOPS (I/O operations per second) value) for the RDS instance",
+		labels,
+		nil,
+	)
 )
 
 // RDSService represents a service on an RDS instance
 type DBInstance struct {
-	Identifier               string // Instance Identifier
+	Identifier               string  // Instance Identifier
 	AllocatedStorage         float64 // allocated storage
+	Iops                     float64 // iops
 }
 
 type promHTTPLogger struct {
@@ -90,12 +98,18 @@ func (e *RDSClient) GetRDSInstances() ([]*DBInstance, error) {
 		return nil, err
 	}
 
-	for _, pa := range resp.DBInstances {
+	for _, rdsInstance := range resp.DBInstances {
 
-		var b = (float64(*(pa.AllocatedStorage)))*math.Pow(10,9)
+		var c = 0.0
+		if (rdsInstance.Iops) != nil {
+			c = float64(*(rdsInstance.Iops))
+		}
+
+		var b = (float64(*(rdsInstance.AllocatedStorage)))*math.Pow(10,9)
 		db := &DBInstance{
-			Identifier: aws.StringValue(pa.DBInstanceIdentifier),
+			Identifier: aws.StringValue(rdsInstance.DBInstanceIdentifier),
 			AllocatedStorage: b,
+			Iops: c,
 		}
 
 		rs = append(rs, db)
@@ -114,6 +128,7 @@ type exporter struct {
 // implements prometheus.Collector.
 func (e *exporter) Describe(ch chan<- *prometheus.Desc) {
 	ch <- storage
+	ch <- iops
 }
 
 // Collect fetches the stats from the configured RDS and delivers them
@@ -131,6 +146,9 @@ func (e *exporter) Collect(ch chan<- prometheus.Metric) {
 	for _, r := range rs {
 		ch <- prometheus.MustNewConstMetric(
 			storage, prometheus.GaugeValue, r.AllocatedStorage, e.region, r.Identifier,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			iops, prometheus.GaugeValue, r.Iops, e.region, r.Identifier,
 		)
 	}
 }

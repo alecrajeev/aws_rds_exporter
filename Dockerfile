@@ -1,12 +1,11 @@
-ARG ARCH="amd64"
-ARG OS="linux"
-FROM quay.io/prometheus/busybox-${OS}-${ARCH}:latest
-LABEL maintainer="Alec Rajeev <alecinthecloud@gmail.com>"
+FROM docker:dind
+RUN apk add --no-cache go
 
-ARG ARCH="amd64"
-ARG OS="linux"
-COPY .build/${OS}-${ARCH}/aws_rds_exporter   /bin/aws_rds_exporter
+ADD . /go/src/github.com/alecrajeev/aws_rds_exporter
+WORKDIR /go/src/github.com/alecrajeev/aws_rds_exporter
+
+RUN go install
 
 USER nobody
 EXPOSE     9785
-ENTRYPOINT [ "/bin/aws_rds_exporter" ]
+ENTRYPOINT [ "/go/bin/aws_rds_exporter" ]

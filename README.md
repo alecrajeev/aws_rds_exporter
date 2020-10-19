@@ -7,7 +7,7 @@ make
 
 ### Run
 ```
-./aws_rds_exporter --aws.region=eu-west-1
+./aws_rds_exporter --rds.region=us-east-1
 ```
 
 ## Exported Metrics
@@ -16,6 +16,14 @@ make
 | ----------------------------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------- |
 | rds_storage   | Amount of storage in bytes for the RDS instance           | region, instance |
 | rds_iops   | Amount of iops for the RDS instance           | region, instance |
+
+### Flags
+
+```bash
+./aws_rds_exporter --help
+```
+
+* __`rds.region`:__ AWS Region to run API calls against.
 
 ## Docker
 You can deploy this exporter using the [alecrajeev/aws_rds_exporter](https://hub.docker.com/r/alecrajeev/aws_rds_exporter/) Docker Image.

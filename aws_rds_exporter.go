@@ -47,6 +47,10 @@ var (
 	)
 )
 
+type rdsOpts struct {
+	awsRegion     string
+}
+
 // RDSService represents a service on an RDS instance
 type DBInstance struct {
 	Identifier               string  // Instance Identifier
@@ -119,6 +123,22 @@ func (e *RDSClient) GetRDSInstances() ([]*DBInstance, error) {
 	return rs, nil
 }
 
+func NewExporter(opts rdsOpts) (*exporter, error) {
+	region := opts.awsRegion
+
+	RdsClient, err := NewRDSClient(region)
+
+	if err != nil {
+		fmt.Printf("Error with rds client")
+		return nil, fmt.Errorf("Error with rds client")
+	}
+
+	return &exporter{
+		client: RdsClient,
+		region: region,
+	},nil
+}
+
 type exporter struct {
 	client    RDSGatherer
 	region string
@@ -162,7 +182,10 @@ func run() int {
 	var (
 		listenAddress = kingpin.Flag("web.listen-address", "Address to listen on for web interface and telemetry.").Default(":9785").String()
 		metricsPath   = kingpin.Flag("web.telemetry-path", "Path under which to expose metrics.").Default("/metrics").String()
+
+		opts = rdsOpts{}
 	)
+	kingpin.Flag("rds.region", "AWS Region to query").Default("us-east-1").StringVar(&opts.awsRegion)
 
 
 	promlogConfig := &promlog.Config{}
@@ -174,18 +197,13 @@ func run() int {
 	fmt.Printf("Starting aws_rds_exporter...")
 	fmt.Printf("\n")
 
-	RdsClient, err := NewRDSClient("us-east-1")
+	exporter, err := NewExporter(opts)
 
-	if (err != nil) {
+	if err != nil {
 		fmt.Printf("Error with rds client")
 		return 1
 	}
 
-	// exporter := &exporter{api: rds.New(sess)}
-	exporter := &exporter{
-		client: RdsClient,
-		region: "us-east-1",
-	}
 	prometheus.MustRegister(exporter)
 
 	http.Handle(*metricsPath,

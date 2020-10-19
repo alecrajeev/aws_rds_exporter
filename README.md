@@ -7,15 +7,15 @@ make
 
 ### Run
 ```
-./aws_rds_exporter --rds.region=us-east-1
+./aws_rds_exporter --aws_rds.region=us-east-1
 ```
 
 ## Exported Metrics
 
 | Metric                              | Meaning                                                                                              | Labels                                        |
 | ----------------------------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| rds_storage   | Amount of storage in bytes for the RDS instance           | region, instance |
-| rds_iops   | Amount of iops for the RDS instance           | region, instance |
+| aws_rds_storage   | Amount of storage in bytes for the RDS instance           | region, instance |
+| aws_rds_iops   | Amount of iops for the RDS instance           | region, instance |
 
 ### Flags
 
@@ -23,7 +23,7 @@ make
 ./aws_rds_exporter --help
 ```
 
-* __`rds.region`:__ AWS Region to run API calls against.
+* __`aws_rds.region`:__ AWS Region to run API calls against.
 
 ## Docker
 You can deploy this exporter using the [alecrajeev/aws_rds_exporter](https://hub.docker.com/r/alecrajeev/aws_rds_exporter/) Docker Image.
@@ -35,5 +35,5 @@ docker run -p 9785:9785 alecrajeev/aws_rds_exporter
 ```
 
 ### Credentials
-The `aws-rds_exporter` requires AWS credentials to access the AWS RDS API. For example you can pass them via env vars using `-e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}` options.
+The `aws_rds_exporter` requires AWS credentials to access the AWS RDS API. For example you can pass them via env vars using `-e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}` options.
 

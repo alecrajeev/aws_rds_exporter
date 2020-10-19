@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	namespace = "rds"
+	namespace = "aws_rds"
 )
 
 // Metrics descriptions

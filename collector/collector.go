@@ -38,7 +38,7 @@ var (
 	)
 )
 
-// RDSService represents a service on an RDS instance
+// DBInstance represents a particular RDS instance
 type DBInstance struct {
 	Identifier               string  // Instance Identifier
 	AllocatedStorage         float64 // allocated storage

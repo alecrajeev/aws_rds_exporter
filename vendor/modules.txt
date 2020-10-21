@@ -54,6 +54,7 @@ github.com/go-kit/kit/log/level
 github.com/go-logfmt/logfmt
 # github.com/golang/mock v1.4.4
 ## explicit
+github.com/golang/mock/gomock
 # github.com/golang/protobuf v1.4.3
 github.com/golang/protobuf/proto
 github.com/golang/protobuf/ptypes

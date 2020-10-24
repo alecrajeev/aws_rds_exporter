@@ -9,6 +9,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/rds"
 	"github.com/aws/aws-sdk-go/service/rds/rdsiface"
 
+	"github.com/alecrajeev/aws_rds_exporter/types"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/version"
 )
@@ -38,13 +40,6 @@ var (
 	)
 )
 
-// DBInstance represents a particular RDS instance
-type DBInstance struct {
-	Identifier               string  // Instance Identifier
-	AllocatedStorage         float64 // allocated storage
-	Iops                     float64 // iops
-}
-
 // RDSClient is a wrapper for AWS rds client that implements helpers to get RDS metrics
 type RDSClient struct {
 	client        rdsiface.RDSAPI
@@ -53,7 +48,7 @@ type RDSClient struct {
 
 // RDSGatherer is the interface that implements the methods required to gather RDS data
 type RDSGatherer interface {
-	GetRDSInstances() ([]*DBInstance, error)
+	GetRDSInstances() ([]*types.DBInstance, error)
 }
 
 // NewRDSClient will return an initialized RDSClient
@@ -71,10 +66,9 @@ func NewRDSClient(awsRegion string) (*RDSClient, error) {
 }
 
 // GetRDSInstances will get the instances from the RDS API
-func (e *RDSClient) GetRDSInstances() ([]*DBInstance, error) {
-	rs := []*DBInstance{}
-	params := &rds.DescribeDBInstancesInput{
-	}
+func (e *RDSClient) GetRDSInstances() ([]*types.DBInstance, error) {
+	rs := []*types.DBInstance{}
+	params := &rds.DescribeDBInstancesInput{}
 
 	resp, err := e.client.DescribeDBInstances(params)
 	if err != nil {
@@ -88,11 +82,12 @@ func (e *RDSClient) GetRDSInstances() ([]*DBInstance, error) {
 			c = float64(*(rdsInstance.Iops))
 		}
 
-		var b = (float64(*(rdsInstance.AllocatedStorage)))*math.Pow(10,9)
-		db := &DBInstance{
-			Identifier: aws.StringValue(rdsInstance.DBInstanceIdentifier),
+		// multiply by 10^9, so that it returns bytes (prometheus standard)
+		var b = (float64(*(rdsInstance.AllocatedStorage))) * math.Pow(10, 9)
+		db := &types.DBInstance{
+			Identifier:       aws.StringValue(rdsInstance.DBInstanceIdentifier),
 			AllocatedStorage: b,
-			Iops: c,
+			Iops:             c,
 		}
 
 		rs = append(rs, db)
@@ -113,11 +108,11 @@ func NewExporter(awsRegion string) (*exporter, error) {
 	return &exporter{
 		client: RdsClient,
 		region: awsRegion,
-	},nil
+	}, nil
 }
 
 type exporter struct {
-	client    RDSGatherer
+	client RDSGatherer
 	region string
 }
 
@@ -131,7 +126,6 @@ func (e *exporter) Describe(ch chan<- *prometheus.Desc) {
 // Collect fetches the stats from the configured RDS and delivers them
 // as Prometheus metrics. It implements prometheus.Collector
 func (e *exporter) Collect(ch chan<- prometheus.Metric) {
-
 
 	rs, err := e.client.GetRDSInstances()
 

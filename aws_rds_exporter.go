@@ -26,9 +26,8 @@ func (l promHTTPLogger) Println(v ...interface{}) {
 }
 
 type rdsOpts struct {
-	awsRegion     string
+	awsRegion string
 }
-
 
 func run() int {
 
@@ -39,7 +38,6 @@ func run() int {
 		opts = rdsOpts{}
 	)
 	kingpin.Flag("rds.region", "AWS Region to query").Default("us-east-1").StringVar(&opts.awsRegion)
-
 
 	promlogConfig := &promlog.Config{}
 	flag.AddFlags(kingpin.CommandLine, promlogConfig)
@@ -102,13 +100,8 @@ func run() int {
 	return 0
 }
 
-
 func main() {
 
 	exCode := run()
 	os.Exit(exCode)
 }
-
-
-
-

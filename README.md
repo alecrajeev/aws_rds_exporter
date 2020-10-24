@@ -41,5 +41,5 @@ docker run -p 9785:9785 alecrajeev/aws_rds_exporter
 ```
 
 ### Credentials
-The `aws_rds_exporter` requires AWS credentials to access the AWS RDS API. For example you can pass them via env vars using `-e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}` options.
+The `aws_rds_exporter` requires AWS credentials to access the AWS RDS API. For example, you can pass them via env vars using `-e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}` options.
 

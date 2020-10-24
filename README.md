@@ -25,6 +25,12 @@ make
 
 * __`aws_rds.region`:__ AWS Region to run API calls against.
 
+## Unit Tests
+Use the below to run unit tests locally.
+```
+go list ./... | grep -v /vendor/ | go test -v
+```
+
 ## Docker
 You can deploy this exporter using the [alecrajeev/aws_rds_exporter](https://hub.docker.com/r/alecrajeev/aws_rds_exporter/) Docker Image.
 
